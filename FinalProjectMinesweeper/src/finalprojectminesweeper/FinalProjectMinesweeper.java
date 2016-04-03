@@ -1,5 +1,8 @@
 package finalprojectminesweeper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -9,6 +12,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
+import javafx.scene.text.Font;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -44,8 +48,14 @@ public class FinalProjectMinesweeper extends Application {
             for(int x = 0; x < X_TILES; x++){
                 Tile tile = grid[x][y];
                 // set bombs
+                
+                if(tile.hasBomb)
+                    continue;
+                
                 long bombs = getNeighbors(tile).stream().filter(t -> t.hasBomb).count();
-                tile.text.setText(String.valueOf(bombs));
+                
+                if(bombs > 0)
+                    tile.text.setText(String.valueOf(bombs));
             }
         }
         
@@ -74,8 +84,8 @@ public class FinalProjectMinesweeper extends Application {
             int newX = tile.x + dx;
             int newY = tile.y + dy;
             
-            if(newX >= 0 && newX < X_TILES && NEWy >= 0 && NEWy < Y_TILES){
-                nighbors.add(grid[newX][newY]);
+            if(newX >= 0 && newX < X_TILES && newY >= 0 && newY < Y_TILES){
+                neighbors.add(grid[newX][newY]);
             }
                     
         }
@@ -86,7 +96,7 @@ public class FinalProjectMinesweeper extends Application {
     private class Tile extends StackPane{
         private int x, y;
         private boolean hasBomb;
-        
+        private boolean isOpen = false;
         private Rectangle border = new Rectangle(TILE_SIZE - 2, TILE_SIZE - 2);
         private Text text = new Text();
         
@@ -97,13 +107,31 @@ public class FinalProjectMinesweeper extends Application {
             
             border.setStroke(Color.LIGHTGREY);
             
+            text.setFill(Color.WHITE);
+            text.setFont(Font.font(18));
             text.setText(hasBomb ? "X" : "");
+            text.setVisible(false);
             
             getChildren().addAll(border, text);
             
             setTranslateX(x * TILE_SIZE);
             setTranslateY(y * TILE_SIZE);
+            
+            setOnMouseClicked(e -> open());
         }
+        
+        public void open() {
+            if(isOpen)
+                return;
+            
+            isOpen = true;
+            text.setVisible(true);
+            border.setFill(null);
+            
+            if(text.getText().isEmpty()){
+                getNeighbors(this).forEach(Tile::open);
+            }
+        }   
     }
     
     @Override
