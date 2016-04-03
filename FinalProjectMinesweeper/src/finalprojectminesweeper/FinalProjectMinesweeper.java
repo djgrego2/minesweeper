@@ -7,8 +7,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
-
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 /**
  *
  * @author GAustin6
@@ -22,11 +25,62 @@ public class FinalProjectMinesweeper extends Application {
     private static final int X_TILES = W / TILE_SIZE;
     private static final int Y_TILES = H / TILE_SIZE;
     
+    private Tile[][] grid = new Tile[X_TILES][Y_TILES];
+    
     private Parent createContent(){
         Pane root = new Pane();
         root.setPrefSize(800, 600);
         
+        for(int y = 0; y < Y_TILES; y++){
+            for(int x = 0; x < X_TILES; x++){
+                Tile tile = new Tile(x, y, Math.random()< 0.2);
+                
+                grid[x][y] = tile;
+                root.getChildren().add(tile);
+            }
+        }
+        
+        for(int y = 0; y < Y_TILES; y++){
+            for(int x = 0; x < X_TILES; x++){
+                Tile tile = grid[x][y];
+                // set bombs
+                long bombs = getNeighbors(tile).stream().filter(t -> t.hasBomb).count();
+                tile.text.setText(String.valueOf(bombs));
+            }
+        }
+        
         return root;
+    }
+    
+    private List<Tile> getNeighbors(Tile tile){
+        List<Tile> neighbors = new ArrayList<>();
+        
+        int[] points = new int[]{
+            -1, 1,
+            -1, 0,
+            -1, 1,
+            0, -1,
+            0, 1,
+            -1, -1,
+            1, 1,
+            1, 0,
+            1, 1
+        };
+        
+        for(int i = 0; i < points.length; i++){
+            int dx = points[i];
+            int dy = points[++i];
+            
+            int newX = tile.x + dx;
+            int newY = tile.y + dy;
+            
+            if(newX >= 0 && newX < X_TILES && NEWy >= 0 && NEWy < Y_TILES){
+                nighbors.add(grid[newX][newY]);
+            }
+                    
+        }
+        
+        return neighbors;
     }
     
     private class Tile extends StackPane{
